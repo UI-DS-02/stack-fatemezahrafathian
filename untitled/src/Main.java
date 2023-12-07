@@ -7,10 +7,10 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         String string = scanner.nextLine();
-        System.out.println(validParenthesize(string));
-        System.out.println(validElements(string));
-        System.out.println(validOperator(string));
+        calculate(string);
 
+    }
+    private static void calculate(String string){
         if (validParenthesize(string) && validElements(string) && validOperator(string) ){
             StringBuilder stringBuilder = new StringBuilder();
             for (int i=0 ; i< string.length() ; i++){
@@ -67,9 +67,9 @@ public class Main {
         }
     }
     private static boolean validParenthesize(String fraze){
-        //save ) elements
+        //save ( elements
         LinkedStack<Character> opening = new LinkedStack<>();
-        //check Parenthesize of loop
+        //check Parenthesize
         for (int i = 0 ; i<fraze.length(); i++){
             //check opening Parenthesize
             if (fraze.charAt(i)==')'){
