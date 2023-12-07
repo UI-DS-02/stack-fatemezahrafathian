@@ -1,249 +1,101 @@
-import java.util.ArrayList;
-import java.util.Arrays;
+import Exceptions.InvalidParenthesize;
+import Exceptions.*;
+
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
         String string = scanner.nextLine();
-        calculate(string);
-
-    }
-    private static void calculate(String string){
-        if (validParenthesize(string) && validElements(string) && validOperator(string) ){
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i=0 ; i< string.length() ; i++){
-                stringBuilder.append(string.charAt(i));
-            }
-            string=replaceE(stringBuilder);
-            string=replacePI(stringBuilder);
-            string=splitFraze(string);
-            String postfix=infixToPostfix(string);
-            System.out.println(postfix);;
-            String[] operandAndOperators = postfix.split(",");
-            LinkedStack<String> stack = new LinkedStack<>();
-            LinkedStack<Double> tempStack = new LinkedStack<>();
-            for (int i=operandAndOperators.length -1 ; i>=0 ; i--){
-                stack.push(operandAndOperators[i]);
-            }
+        while (!string.equals("exit")){
             try {
-                while (!stack.isEmpty()){
-                    while (isNumber(stack.top().charAt(0)) ||(stack.top().charAt(0)=='-'&& stack.top().length()>1)){
-                        tempStack.push(Double.parseDouble(stack.pop()));
+                if (validParenthesize(string) && validElements(string) && validOperator(string) ){
+                    //convert input to stringBuilder
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i=0 ; i< string.length() ; i++){
+                        stringBuilder.append(string.charAt(i));
                     }
-                    if (stack.top().charAt(0)=='+'){
-                        tempStack.push(tempStack.pop()+tempStack.pop());
-                        stack.pop();
-                    }
-                    else if (stack.top().charAt(0)=='-' && stack.top().length()==1){
-                        double a=tempStack.pop();
-                        double b=tempStack.pop();
-                        tempStack.push(b-a);
-                        stack.pop();
-                    }else if (stack.top().charAt(0)=='*'){
-                        tempStack.push(tempStack.pop()*tempStack.pop());
-                        stack.pop();
-                    }else if (stack.top().charAt(0)=='/'){
-                        double a=tempStack.pop();
-                        double b=tempStack.pop();
-                        tempStack.push(b/a);
-                        stack.pop();
-                    }else if (stack.top().charAt(0)=='^'){
-                        double a=tempStack.pop();
-                        double b=tempStack.pop();
-                        tempStack.push(Math.pow(b,a));
-                        stack.pop();
-                    }else if (stack.top().charAt(0)=='!'){
-                        int a=tempStack.pop().intValue();
-                        tempStack.push(factorial(a));
-                        stack.pop();
-                    }
+                    //replace e
+                    string=replaceE(stringBuilder);
+                    //replace PI
+                    string=replacePI(stringBuilder);
+                    //split fraze whit ,
+                    string=splitFraze(string);
+                    //convert fraze to postfix
+                    String postfix=infixToPostfix(string);
+//                    System.out.println(postfix);
+                    System.out.println(calculate(postfix));
                 }
-            }catch (Exception e){
-                System.out.println(e.getMessage());
+            } catch (Exception exception/*InvalidParenthesize | InvalidElement | InvalidFactorialOperand | InvalidOperator exception*/ ) {
+                System.out.println(exception.getMessage());
             }
-            System.out.println(tempStack.pop());
+            System.out.println("enter values:");
+            string=scanner.nextLine();
         }
-    }
-    private static boolean validParenthesize(String fraze){
-        //save ( elements
-        LinkedStack<Character> opening = new LinkedStack<>();
-        //check Parenthesize
-        for (int i = 0 ; i<fraze.length(); i++){
-            //check opening Parenthesize
-            if (fraze.charAt(i)==')'){
-                if (opening.isEmpty()) {
-                    return false;
-                }
-                //delete elements
-                opening.pop();
-            }
-            //add opening Parenthesize
-            else if (fraze.charAt(i)=='('){
-                opening.push('(');
-            }
-        }
-        if (opening.isEmpty())
-            return true;
-        return false;
-    }
-    private static boolean validElements(String fraze){
-        boolean invalidElement=true;
-        //check elements of loop
-        for (int i = 0 ; i<fraze.length(); i++){
-            if (fraze.charAt(i)!=')' && fraze.charAt(i)!='(' && fraze.charAt(i)!='+'
-                    && fraze.charAt(i)!='-' && fraze.charAt(i)!='*' && fraze.charAt(i)!='/' && fraze.charAt(i)!='^'
-                    && fraze.charAt(i)!='!' && fraze.charAt(i)!='.' && fraze.charAt(i)!='0' && fraze.charAt(i)!='1'
-                    && fraze.charAt(i)!='2' && fraze.charAt(i)!='3' && fraze.charAt(i)!='4' && fraze.charAt(i)!='5' && fraze.charAt(i)!='6'
-                    && fraze.charAt(i)!='7' && fraze.charAt(i)!='8' && fraze.charAt(i)!='9' && fraze.charAt(i)!='e'&& fraze.charAt(i)!='P'){
-                invalidElement=false;
-            }
-            if (fraze.charAt(i)=='P'){
-                if (i+1>=fraze.length())
-                    invalidElement=false;
-                else if (fraze.charAt(i+1)!='I'){
-                    invalidElement=false;
-                }
-                i++;
-            }
-        }
-        return invalidElement;
-    }
-    private static boolean validOperator(String fraze){
-        boolean validOperator=true;
-        //check elements of loop
-        for (int i = 0 ; i<fraze.length(); i++){
-            if (fraze.charAt(i)==')'){
-                if (i+1<fraze.length()){
-                    if (fraze.charAt(i+1)=='0' || fraze.charAt(i+1)=='1' || fraze.charAt(i+1)=='2' || fraze.charAt(i+1)=='3'
-                            || fraze.charAt(i+1)=='4' || fraze.charAt(i+1)=='5' || fraze.charAt(i+1)=='6' || fraze.charAt(i+1)=='7'
-                            || fraze.charAt(i+1)=='8' || fraze.charAt(i+1)=='9' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)=='('){
-                        validOperator=false;
-                    }
-                }
-                if (i-1>=0){
-                    if (fraze.charAt(i-1)=='+' || fraze.charAt(i-1)=='-' || fraze.charAt(i-1)=='*' || fraze.charAt(i-1)=='/'
-                            || fraze.charAt(i-1)=='!' || fraze.charAt(i-1)=='^' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)=='('){
-                        validOperator=false;
-                    }
-                }
-            }
-            else if (fraze.charAt(i)=='('){
-                if (i+1<fraze.length()){
-                    if (fraze.charAt(i+1)=='+'  || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/'
-                            || fraze.charAt(i+1)=='!' || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
-                        validOperator=false;
-                    }
-                }
-                if (i-1>=0){
-                    if (fraze.charAt(i-1)=='0' || fraze.charAt(i-1)=='1' || fraze.charAt(i-1)=='2' || fraze.charAt(i-1)=='3'
-                            || fraze.charAt(i-1)=='4' || fraze.charAt(i-1)=='5' || fraze.charAt(i-1)=='6' || fraze.charAt(i-1)=='7'
-                            || fraze.charAt(i-1)=='8' || fraze.charAt(i-1)=='9' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)==')'){
-                        validOperator=false;
-                    }
-                }
-            }
-            else if (fraze.charAt(i)=='-'){
-                if (i+1<fraze.length()){
-                    if (fraze.charAt(i+1)=='+' || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/' || fraze.charAt(i+1)=='!'
-                            || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
-                        validOperator=false;
-                    }
-                }else validOperator=false;
-                if (i-1>=0){
-                    if (fraze.charAt(i-1)=='.'){
-                        validOperator=false;
-                    }
-                }
-            }
-            else if (fraze.charAt(i)=='+'|| fraze.charAt(i)=='*' ||fraze.charAt(i)=='/' || fraze.charAt(i)=='^'){
-                if (i+1<fraze.length()){
-                    if (fraze.charAt(i+1)=='+' || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/' || fraze.charAt(i+1)=='!'
-                            || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
-                        validOperator=false;
-                    }
-                }else validOperator=false;
-                if (i-1>=0){
-                    if (fraze.charAt(i-1)=='+' || fraze.charAt(i-1)=='*' || fraze.charAt(i-1)=='/'
-                            || fraze.charAt(i-1)=='^' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)=='('){
-                        validOperator=false;
-                    }
-                }else validOperator=false;
-            }
-            else if (fraze.charAt(i)=='!'){
-                if (i+1<fraze.length()){
-                    if (fraze.charAt(i+1)!='+' && fraze.charAt(i+1)!='-' && fraze.charAt(i+1)!='*' && fraze.charAt(i+1)!='/'
-                            && fraze.charAt(i+1)!='!' && fraze.charAt(i+1)!='^' && fraze.charAt(i+1)!=')'){
-                        validOperator=false;
-                    }
-                }
-                if (i-1>=0){
-                    if (fraze.charAt(i-1)!='0' && fraze.charAt(i-1)!='1' && fraze.charAt(i-1)!='2' && fraze.charAt(i-1)!='3'
-                            && fraze.charAt(i-1)!='4' && fraze.charAt(i-1)!='5' && fraze.charAt(i-1)!='6'
-                            && fraze.charAt(i-1)!='7' && fraze.charAt(i-1)!='8' && fraze.charAt(i-1)!='9'){
-                        validOperator=false;
-                    }
-                }else validOperator=false;
-            }
-            else if (fraze.charAt(i)=='.'){
-                if (i+1<fraze.length()){
-                    if (fraze.charAt(i+1)!='0' && fraze.charAt(i+1)!='1' && fraze.charAt(i+1)!='2' && fraze.charAt(i+1)!='3'
-                            && fraze.charAt(i+1)!='4' && fraze.charAt(i+1)!='5' && fraze.charAt(i+1)!='6'
-                            && fraze.charAt(i+1)!='7' && fraze.charAt(i+1)!='8' && fraze.charAt(i+1)!='9'){
-                        validOperator=false;
-                    }
-                }else validOperator=false;
-                if (i-1>=0){
-                    if (fraze.charAt(i-1)!='0' && fraze.charAt(i-1)!='1' && fraze.charAt(i-1)!='2' && fraze.charAt(i-1)!='3'
-                            && fraze.charAt(i-1)!='4' && fraze.charAt(i-1)!='5' && fraze.charAt(i-1)!='6'
-                            && fraze.charAt(i-1)!='7' && fraze.charAt(i-1)!='8' && fraze.charAt(i-1)!='9'){
-                        validOperator=false;
-                    }
-                }else validOperator=false;
-            }
-        }
-        return validOperator;
-    }
-    private static String replaceE(StringBuilder fraze){
-        for (int i = 0 ; i<fraze.length(); i++){
-            if (fraze.charAt(i)=='e'){
-                fraze.delete(i,i+1);
-                fraze.insert(i,"2.71");
-            }
-        }
-        return fraze.toString();
-    }
-    private static String replacePI(StringBuilder fraze){
-        for (int i = 0 ; i<fraze.length(); i++){
-            if (fraze.charAt(i)=='P'){
-                fraze.delete(i,i+2);
-                fraze.insert(i,"3.14");
-            }
-        }
-        return fraze.toString();
-    }
-    private static String splitFraze(String fraze){
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i=0 ; i<fraze.length() ; i++){
-            stringBuilder.append(fraze.charAt(i));
-            if (isNumber(fraze.charAt(i))){
-                if (i+1<fraze.length()){
-                    if (!isNumber(fraze.charAt(i+1)) && fraze.charAt(i+1)!='.'){
-                        stringBuilder.append(",");
-                    }
-                }else stringBuilder.append(",");
-            }
 
+    }
+    private static double calculate(String postfix) throws InvalidFactorialOperand {
+        //split fraze whit ,
+        String[] operandAndOperators = postfix.split(",");
+        //convert string ti stack
+        LinkedStack<String> stack = new LinkedStack<>();
+        for (int i=operandAndOperators.length -1 ; i>=0 ; i--){
+            stack.push(operandAndOperators[i]);
         }
-        return stringBuilder.toString();
+        //save values
+        LinkedStack<Double> tempStack = new LinkedStack<>();
+
+        while (!stack.isEmpty()){
+            //add values to tempStack
+            while (isNumber(stack.top().charAt(0)) ||(stack.top().charAt(0)=='-'&& stack.top().length()>1)){
+                tempStack.push(Double.parseDouble(stack.pop()));
+            }
+            //check and do operator
+            if (stack.top().charAt(0)=='+'){
+                tempStack.push(tempStack.pop()+tempStack.pop());
+                stack.pop();
+            }
+            else if (stack.top().charAt(0)=='-' && stack.top().length()==1){
+                double a=tempStack.pop();
+                double b=tempStack.pop();
+                tempStack.push(b-a);
+                stack.pop();
+            }
+            else if (stack.top().charAt(0)=='*'){
+                tempStack.push(tempStack.pop()*tempStack.pop());
+                stack.pop();
+            }
+            else if (stack.top().charAt(0)=='/'){
+                double a=tempStack.pop();
+                double b=tempStack.pop();
+                tempStack.push(b/a);
+                stack.pop();
+            }
+            else if (stack.top().charAt(0)=='^'){
+                double a=tempStack.pop();
+                double b=tempStack.pop();
+                tempStack.push(Math.pow(b,a));
+                stack.pop();
+            }
+            else if (stack.top().charAt(0)=='!'){
+                if (tempStack.top()-tempStack.top().intValue()!=0)
+                    throw new InvalidFactorialOperand();
+                int a=tempStack.pop().intValue();
+                tempStack.push(factorial(a));
+                stack.pop();
+            }
+        }
+        return tempStack.pop();
     }
     private static String infixToPostfix(String s){
+        //convert string to stringBuilder
         StringBuilder infix = new StringBuilder();
         for (int i = 0 ; i < s.length() ; i++){
             infix.append(s.charAt(i));
         }
+        //save opening parenthesize and operators
         LinkedStack<Character> stack = new LinkedStack<>();
+        //save postfix form of input fraze
         StringBuilder postfix = new StringBuilder();
         char character;
         for (int i = 0 ; i< infix.length() ; i++){
@@ -340,14 +192,57 @@ public class Main {
         }
         return postfix.toString();
     }
-    private static boolean isNumber(char character) {
-        if (character=='0' || character=='1' || character=='2' || character=='3' || character=='4' || character=='5'
-                || character=='6' || character=='7' || character=='8' || character=='9' ){
-            return true;
+    private static String splitFraze(String fraze){
+        //add , after than operators and operand
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i=0 ; i<fraze.length() ; i++){
+            stringBuilder.append(fraze.charAt(i));
+            if (isNumber(fraze.charAt(i))){
+                if (i+1<fraze.length()){
+                    if (!isNumber(fraze.charAt(i+1)) && fraze.charAt(i+1)!='.'){
+                        stringBuilder.append(",");
+                    }
+                }else stringBuilder.append(",");
+            }
+
         }
-        return false;
+        return stringBuilder.toString();
+    }
+    public static double factorial(int num) throws InvalidFactorialOperand {
+        if (num<0)
+            throw new InvalidFactorialOperand();
+        if (num >= 1)
+            return num * factorial(num - 1);
+        else
+            return 1;
+    }
+    private static String replaceE(StringBuilder fraze){
+        //get a fraze and replace 2.71 whit e
+        for (int i = 0 ; i<fraze.length(); i++){
+            if (fraze.charAt(i)=='e'){
+                fraze.delete(i,i+1);
+                fraze.insert(i,"2.71");
+            }
+        }
+        return fraze.toString();
+    }
+    private static String replacePI(StringBuilder fraze){
+        //get a fraze and replace 3.14 whit PI
+        for (int i = 0 ; i<fraze.length(); i++){
+            if (fraze.charAt(i)=='P'){
+                fraze.delete(i,i+2);
+                fraze.insert(i,"3.14");
+            }
+        }
+        return fraze.toString();
+    }
+    private static boolean isNumber(char character) {
+        //if character is number return true
+        return character == '0' || character == '1' || character == '2' || character == '3' || character == '4' || character == '5'
+                || character == '6' || character == '7' || character == '8' || character == '9';
     }
     private static int getPriority(char c){
+        //order : () , ! , ^ , * / , + -
         if (c=='!')
             return 4;
         else if (c=='^')
@@ -359,12 +254,156 @@ public class Main {
         else
             return 5;
     }
-    public static double factorial(int num)
-    {
-        if (num >= 1)
-            return num * factorial(num - 1);
-        else
-            return 1;
+    private static boolean validParenthesize(String fraze) throws InvalidParenthesize {
+        //save ( elements
+        LinkedStack<Character> opening = new LinkedStack<>();
+        //check Parenthesize
+        for (int i = 0 ; i<fraze.length(); i++){
+            //check opening Parenthesize
+            if (fraze.charAt(i)==')'){
+                if (opening.isEmpty()) {
+                    throw new InvalidParenthesize();
+                }
+                //delete elements
+                opening.pop();
+            }
+            //add opening Parenthesize
+            else if (fraze.charAt(i)=='('){
+                opening.push('(');
+            }
+        }
+        if (opening.isEmpty())
+            return true;
+        throw new InvalidParenthesize();
     }
-
+    private static boolean validElements(String fraze) throws InvalidElement {
+        boolean invalidElement=true;
+        //check elements by loop
+        for (int i = 0 ; i<fraze.length(); i++){
+            //valid elements can be ( , ) ,. ,+, - ,* ,/ ,!,^, and numbers , PI , e
+            if (fraze.charAt(i)!=')' && fraze.charAt(i)!='(' && fraze.charAt(i)!='+'
+                    && fraze.charAt(i)!='-' && fraze.charAt(i)!='*' && fraze.charAt(i)!='/' && fraze.charAt(i)!='^'
+                    && fraze.charAt(i)!='!' && fraze.charAt(i)!='.' && fraze.charAt(i)!='0' && fraze.charAt(i)!='1'
+                    && fraze.charAt(i)!='2' && fraze.charAt(i)!='3' && fraze.charAt(i)!='4' && fraze.charAt(i)!='5' && fraze.charAt(i)!='6'
+                    && fraze.charAt(i)!='7' && fraze.charAt(i)!='8' && fraze.charAt(i)!='9' && fraze.charAt(i)!='e'&& fraze.charAt(i)!='P'){
+                throw new InvalidElement(fraze.charAt(i));
+            }
+            if (fraze.charAt(i)=='P'){
+                if (i+1>=fraze.length())
+                    throw new InvalidElement(fraze.charAt(i));
+                else if (fraze.charAt(i+1)!='I'){
+                    throw new InvalidElement(fraze.charAt(i));
+                }
+                i++;
+            }
+        }
+        return invalidElement;
+    }
+    private static boolean validOperator(String fraze) throws InvalidOperator {
+        boolean validOperator=true;
+        //check elements by loop
+        for (int i = 0 ; i<fraze.length(); i++){
+            if (fraze.charAt(i)==')'){
+                //after than closing parenthesize can not be numbers or . or (
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)=='0' || fraze.charAt(i+1)=='1' || fraze.charAt(i+1)=='2' || fraze.charAt(i+1)=='3'
+                            || fraze.charAt(i+1)=='4' || fraze.charAt(i+1)=='5' || fraze.charAt(i+1)=='6' || fraze.charAt(i+1)=='7'
+                            || fraze.charAt(i+1)=='8' || fraze.charAt(i+1)=='9' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)=='('){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }
+                //before than opening parenthesize can not be operator or ( or .
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='+' || fraze.charAt(i-1)=='-' || fraze.charAt(i-1)=='*' || fraze.charAt(i-1)=='/'
+                            || fraze.charAt(i-1)=='^' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)=='('){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }
+            }
+            else if (fraze.charAt(i)=='('){
+                if (i+1<fraze.length()){
+                    //after than opening parenthesize can not be operator or . or )
+                    if (fraze.charAt(i+1)=='+'  || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/'
+                            || fraze.charAt(i+1)=='!' || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }
+                //before than closing parenthesize can not be numbers or . or )
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='0' || fraze.charAt(i-1)=='1' || fraze.charAt(i-1)=='2' || fraze.charAt(i-1)=='3'
+                            || fraze.charAt(i-1)=='4' || fraze.charAt(i-1)=='5' || fraze.charAt(i-1)=='6' || fraze.charAt(i-1)=='7'
+                            || fraze.charAt(i-1)=='8' || fraze.charAt(i-1)=='9' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)==')'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }
+            }
+            else if (fraze.charAt(i)=='-'){
+                //after than - can not be operator and - can not be last of fraze
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)=='+' || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/' || fraze.charAt(i+1)=='!'
+                            || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }else throw new InvalidOperator(fraze.charAt(i));
+                //before than - can not be .
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='.'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }
+            }
+            else if (fraze.charAt(i)=='+'|| fraze.charAt(i)=='*' ||fraze.charAt(i)=='/' || fraze.charAt(i)=='^'){
+                if (i+1<fraze.length()){
+                    //after than operators can not be another operator or . or ) and can not comes last of fraze
+                    if (fraze.charAt(i+1)=='+' || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/' || fraze.charAt(i+1)=='!'
+                            || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }else throw new InvalidOperator(fraze.charAt(i));
+                //before than operators can not be another operator and can not comes first of fraze
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='+' || fraze.charAt(i-1)=='*' || fraze.charAt(i-1)=='/'
+                            || fraze.charAt(i-1)=='^' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)=='('){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }else throw new InvalidOperator(fraze.charAt(i));
+            }
+            else if (fraze.charAt(i)=='!'){
+                //after then ! just come operators  or anything
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)!='+' && fraze.charAt(i+1)!='-' && fraze.charAt(i+1)!='*' && fraze.charAt(i+1)!='/'
+                            && fraze.charAt(i+1)!='!' && fraze.charAt(i+1)!='^' && fraze.charAt(i+1)!=')'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }
+                //before than ! just comes number and this can not be firs of fraze
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)!='0' && fraze.charAt(i-1)!='1' && fraze.charAt(i-1)!='2' && fraze.charAt(i-1)!='3'
+                            && fraze.charAt(i-1)!='4' && fraze.charAt(i-1)!='5' && fraze.charAt(i-1)!='6'
+                            && fraze.charAt(i-1)!='7' && fraze.charAt(i-1)!='8' && fraze.charAt(i-1)!='9'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }else throw new InvalidOperator(fraze.charAt(i));
+            }
+            else if (fraze.charAt(i)=='.'){
+                //after than . just be numbers
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)!='0' && fraze.charAt(i+1)!='1' && fraze.charAt(i+1)!='2' && fraze.charAt(i+1)!='3'
+                            && fraze.charAt(i+1)!='4' && fraze.charAt(i+1)!='5' && fraze.charAt(i+1)!='6'
+                            && fraze.charAt(i+1)!='7' && fraze.charAt(i+1)!='8' && fraze.charAt(i+1)!='9'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }else throw new InvalidOperator(fraze.charAt(i));
+                //before than . just have numbers
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)!='0' && fraze.charAt(i-1)!='1' && fraze.charAt(i-1)!='2' && fraze.charAt(i-1)!='3'
+                            && fraze.charAt(i-1)!='4' && fraze.charAt(i-1)!='5' && fraze.charAt(i-1)!='6'
+                            && fraze.charAt(i-1)!='7' && fraze.charAt(i-1)!='8' && fraze.charAt(i-1)!='9'){
+                        throw new InvalidOperator(fraze.charAt(i));
+                    }
+                }else throw new InvalidOperator(fraze.charAt(i));
+            }
+        }
+        return validOperator;
+    }
 }
