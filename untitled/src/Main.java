@@ -34,7 +34,7 @@ public class Main {
         }
 
     }
-    private static double calculate(String postfix) throws InvalidFactorialOperand {
+    private static double calculate(String postfix) throws InvalidFactorialOperand, ZeroException {
         //split fraze whit ,
         String[] operandAndOperators = postfix.split(",");
         //convert string ti stack
@@ -68,6 +68,8 @@ public class Main {
             else if (stack.top().charAt(0)=='/'){
                 double a=tempStack.pop();
                 double b=tempStack.pop();
+                if (a==0)
+                    throw new ZeroException();
                 tempStack.push(b/a);
                 stack.pop();
             }
