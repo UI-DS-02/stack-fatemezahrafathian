@@ -38,4 +38,86 @@ public class Main {
         }
         return invalidElement;
     }
+    private static boolean validOperator(String fraze){
+        boolean validOperator=true;
+        //check elements of loop
+        for (int i = 0 ; i<fraze.length(); i++){
+            if (fraze.charAt(i)==')'){
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)=='0' || fraze.charAt(i+1)=='1' || fraze.charAt(i+1)=='2' || fraze.charAt(i+1)=='3'
+                            || fraze.charAt(i+1)=='4' || fraze.charAt(i+1)=='5' || fraze.charAt(i+1)=='6' || fraze.charAt(i+1)=='7'
+                            || fraze.charAt(i+1)=='8' || fraze.charAt(i+1)=='9' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)=='('){
+                        validOperator=false;
+                    }
+                }
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='+' || fraze.charAt(i-1)=='-' || fraze.charAt(i-1)=='*' || fraze.charAt(i-1)=='/'
+                            || fraze.charAt(i-1)=='!' || fraze.charAt(i-1)=='^' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)=='('){
+                        validOperator=false;
+                    }
+                }
+            }
+            else if (fraze.charAt(i)=='('){
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)=='+' || fraze.charAt(i+1)=='-' || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/'
+                            || fraze.charAt(i+1)=='!' || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
+                        validOperator=false;
+                    }
+                }
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='0' || fraze.charAt(i-1)=='1' || fraze.charAt(i-1)=='2' || fraze.charAt(i-1)=='3'
+                            || fraze.charAt(i-1)=='4' || fraze.charAt(i-1)=='5' || fraze.charAt(i-1)=='6' || fraze.charAt(i-1)=='7'
+                            || fraze.charAt(i-1)=='8' || fraze.charAt(i-1)=='9' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)==')'){
+                        validOperator=false;
+                    }
+                }
+            }
+            else if (fraze.charAt(i)=='+' || fraze.charAt(i)!='-' || fraze.charAt(i)!='*' ||fraze.charAt(i)!='/' || fraze.charAt(i)!='^'){
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)=='+' || fraze.charAt(i+1)=='*' || fraze.charAt(i+1)=='/' || fraze.charAt(i+1)=='!'
+                            || fraze.charAt(i+1)=='^' || fraze.charAt(i+1)=='.' || fraze.charAt(i+1)==')'){
+                        validOperator=false;
+                    }
+                }else validOperator=false;
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)=='+' || fraze.charAt(i-1)=='*' || fraze.charAt(i-1)=='/' || fraze.charAt(i-1)=='!'
+                            || fraze.charAt(i-1)=='^' || fraze.charAt(i-1)=='.' || fraze.charAt(i-1)=='('){
+                        validOperator=false;
+                    }
+                }else validOperator=false;
+            }
+            else if (fraze.charAt(i)=='!'){
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)!='+' || fraze.charAt(i+1)!='-' || fraze.charAt(i+1)!='*' || fraze.charAt(i+1)!='/'
+                            || fraze.charAt(i+1)!='!' || fraze.charAt(i+1)!='^' || fraze.charAt(i+1)!=')'){
+                        validOperator=false;
+                    }
+                }
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)!='0' || fraze.charAt(i-1)!='1' || fraze.charAt(i-1)!='2' || fraze.charAt(i-1)!='3'
+                            || fraze.charAt(i-1)!='4' || fraze.charAt(i-1)!='5' || fraze.charAt(i-1)!='6'
+                            || fraze.charAt(i-1)!='7' || fraze.charAt(i-1)!='8' || fraze.charAt(i-1)!='9'){
+                        validOperator=false;
+                    }
+                }else validOperator=false;
+            }
+            else if (fraze.charAt(i)!='.'){
+                if (i+1<fraze.length()){
+                    if (fraze.charAt(i+1)!='0' || fraze.charAt(i+1)!='1' || fraze.charAt(i+1)!='2' || fraze.charAt(i+1)!='3'
+                            || fraze.charAt(i+1)!='4' || fraze.charAt(i+1)!='5' || fraze.charAt(i+1)!='6'
+                            || fraze.charAt(i+1)!='7' || fraze.charAt(i+1)!='8' || fraze.charAt(i+1)!='9'){
+                        validOperator=false;
+                    }
+                }else validOperator=false;
+                if (i-1>=0){
+                    if (fraze.charAt(i-1)!='0' || fraze.charAt(i-1)!='1' || fraze.charAt(i-1)!='2' || fraze.charAt(i-1)!='3'
+                            || fraze.charAt(i-1)!='4' || fraze.charAt(i-1)!='5' || fraze.charAt(i-1)!='6'
+                            || fraze.charAt(i-1)!='7' || fraze.charAt(i-1)!='8' || fraze.charAt(i-1)!='9'){
+                        validOperator=false;
+                    }
+                }else validOperator=false;
+            }
+        }
+        return validOperator;
+    }
 }
